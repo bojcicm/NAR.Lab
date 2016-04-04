@@ -9,6 +9,45 @@
 
 using namespace std;
 
+chrono::time_point<chrono::steady_clock> getClockTime();
+void printTime(chrono::time_point<chrono::steady_clock> t_start, chrono::time_point<chrono::steady_clock> t_end);
+
+void initArrayWithRandomNumbers(int *ArrayToInit, int LastIndex);
+long int suma();
+
+void sumaRunnner(int ThreadId);
+void paralelThreadRunner(int NumberOfThreads);
+void serialThreadRunner(int NumberOfThreads);
+
+
+int main()
+{
+	for (auto i = 2; i < 15; i+=4)
+	{
+		cout << "Serijski " << i << " threadova\n" << endl;
+		serialThreadRunner(i);
+		cout << "\n============================================================\n" << endl;
+		cout << "Paralelno " << i << " threadova\n" << endl;
+		paralelThreadRunner(i);
+
+		cout << "\n============================================================" << endl;
+		cout << "\n============================================================\n" << endl;
+	}
+}
+
+chrono::time_point<chrono::steady_clock> getClockTime()
+{
+	return std::chrono::high_resolution_clock::now();
+}
+
+void printTime(chrono::time_point<chrono::steady_clock> t_start, chrono::time_point<chrono::steady_clock> t_end)
+{
+	cout << "\n==============\n"
+		<< "Wall clock time passed: "
+		<< chrono::duration<double, std::milli>(t_end - t_start).count()
+		<< " ms\n";
+}
+
 void initArrayWithRandomNumbers(int *ArrayToInit, int LastIndex)
 {
 	for (int i = 0; i < LastIndex; i++)
@@ -38,17 +77,15 @@ void sumaRunnner(int ThreadId)
 {
 	cout << "thread " << ThreadId << " started" << endl;
 
-	cout << "Suma["<< ThreadId <<"]: " << suma() << endl;
+	cout << "Suma[" << ThreadId << "]: " << suma() << endl;
 
 	cout << "thread " << ThreadId << " ended" << endl;
 }
 
 void paralelThreadRunner(int NumberOfThreads)
 {
-	thread* Threads = new thread[NumberOfThreads];
-
-	std::clock_t c_start = std::clock();
-	auto t_start = std::chrono::high_resolution_clock::now();
+	auto* Threads = new thread[NumberOfThreads];
+	auto t_start = getClockTime();
 
 	for (int i = 0; i < NumberOfThreads; i++)
 	{
@@ -59,46 +96,26 @@ void paralelThreadRunner(int NumberOfThreads)
 		Threads[i].join();
 	}
 
-	std::clock_t c_end = std::clock();
-	auto t_end = std::chrono::high_resolution_clock::now();
+	auto t_end = getClockTime();
+	printTime(t_start, t_end);
 
-	std::cout << "\n==============\n" << std::fixed << std::setprecision(2) << "CPU time used: "
-		<< 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
-		<< "Wall clock time passed: "
-		<< std::chrono::duration<double, std::milli>(t_end - t_start).count()
-		<< " ms\n";
+	delete[] Threads;
 
 }
 
 void serialThreadRunner(int NumberOfThreads)
 {
-	thread* Threads = new thread[NumberOfThreads];
+	auto* Threads = new thread[NumberOfThreads];
+	auto t_start = getClockTime();
 
-	std::clock_t c_start = std::clock();
-	auto t_start = std::chrono::high_resolution_clock::now();
-
-	for (int i = 0; i < NumberOfThreads; i++)
+	for (auto i = 0; i < NumberOfThreads; i++)
 	{
 		Threads[i] = thread(sumaRunnner, i);
 		Threads[i].join();
 	}
 
-	std::clock_t c_end = std::clock();
-	auto t_end = std::chrono::high_resolution_clock::now();
+	auto t_end = getClockTime();
+	printTime(t_start, t_end);
 
-	std::cout << "\n==============\n" << std::fixed << std::setprecision(2) << "CPU time used: "
-		<< 1000.0 * (c_end - c_start) / CLOCKS_PER_SEC << " ms\n"
-		<< "Wall clock time passed: "
-		<< std::chrono::duration<double, std::milli>(t_end - t_start).count()
-		<< " ms\n";
-}
-
-
-int main()
-{
-	cout << "Serijski\n" << endl;
-	serialThreadRunner(12);
-	cout << "\n============================================================\n" << endl;
-	cout << "Paralelno\n" << endl;
-	paralelThreadRunner(12);
+	delete[] Threads;
 }
