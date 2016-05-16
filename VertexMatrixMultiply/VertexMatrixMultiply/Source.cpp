@@ -5,7 +5,7 @@
 #include <ctime>
 
 using namespace std;
-#define SIZE 10000   // Size by SIZE matrices
+#define SIZE 20000   // Size by SIZE matrices
 int num_thrd;   // number of threads
 int A[SIZE][SIZE], B[SIZE];
 unsigned int C[SIZE];
@@ -103,14 +103,14 @@ void init_matrix(int m[SIZE][SIZE])
 	int i, j, val = 0;
 	for (i = 0; i < SIZE; i++)
 		for (j = 0; j < SIZE; j++)
-			m[i][j] = val++;
+			m[i][j] = rand() % 100 + 1;
 }
 
 void init_vector(int v[SIZE])
 {
 	int i, val = 0;
 	for (i = 0; i < SIZE; i++)
-		v[i] = val++;
+		v[i] = rand() % 100 + 1;
 }
 
 void print_matrix(int m[SIZE][SIZE])
